@@ -29,7 +29,7 @@ dump            1 all custom 100 dump.chain.lammpstrj id type x y z
 # This new command outputs a PNG image every 200 timesteps
 # Create a subdirectory (e.g., "images") first or it will crash
 dump            2 all image 200 images/frame_*.png type type &
-                view 90 0 size 1280 720 box yes 0.1
+                view 90 0 size 360 720 box yes 0.1
 
 # --- 5. Run Simulation ---
 
