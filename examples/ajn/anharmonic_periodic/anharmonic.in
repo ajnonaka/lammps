@@ -1,0 +1,55 @@
+# LAMMPS input script for a 1D harmonic chain
+
+# --- 1. Initialization ---
+units           lj          # Use Lennard-Jones units (mass=1, distance=1, energy=1)
+dimension       3           # We simulate a 1D chain in 3D space
+boundary        s s p       # Shrink-wrapped in x and y, periodic in z (the chain direction)
+atom_style      bond        # We have atoms connected by bonds
+
+# --- 2. System Definition ---
+read_data       data.chain  # Read atom positions and bond topology from data.chain file
+
+# --- 3. Force Field Definition ---
+# Define the potential for the bonds between atoms.
+# We use a simple harmonic potential: E = K * (r - r0)^2
+bond_style      harmonic
+bond_coeff      1 10.0 1.0   # bond type 1: K=10.0 (spring constant), r0=1.0 (equilibrium length)
+
+# --- 4. Settings ---
+# Set the timestep for the integration algorithm
+timestep        0.0002
+
+# Define how thermodynamic data (like temperature, energy) is printed to the screen
+thermo          100                                   # write frequency
+thermo_style    custom step temp pe ke etotal press   # which variables
+
+# Set up a file to dump atom coordinates for visualization
+# exports atomic coordinates every 100 timesteps to a file for later analysis or visualization
+dump            1 all custom 100 dump.chain.lammpstrj id type x y z
+
+# creates PNG images of the system’s state every 200 timesteps,
+# with parameters defining the viewpoint and output dimensions
+# Create a subdirectory (e.g., "images") first or it will crash
+dump            2 all image 200 images/frame_*.png type type view 90 0 size 180 720 box yes 0.1
+
+# --- 5. Run Simulation ---
+
+# Define groups for the first and last atom
+group           first_atom id 1 2 3 4 5 6 7 8 9
+group           last_atom id 10
+
+# Give the first atom a positive velocity in z
+# Give the last atom a negative velocity in z
+# The total momentum is now zero, so the chain will not drift.
+velocity        first_atom set 0.0 0.0 0.1
+velocity        last_atom set 0.0 0.0 2.0
+
+# Run the simulation using the NVE (microcanonical) ensemble
+# This conserves energy, so the total energy should remain constant
+# also conserves the number of atoms and volume throughout the simulation.
+fix             1 all nve
+
+# Run the simulation for 20,000 steps
+run             100000
+
+print           "Simulation finished."
