@@ -11,9 +11,8 @@ read_data       data.chain  # Read atom positions and bond topology from data.ch
 
 # --- 3. Force Field Definition ---
 # Define the potential for the bonds between atoms.
-# We use a simple harmonic potential: E = K * (r - r0)^2
-bond_style      harmonic
-bond_coeff      1 10.0 1.0   # bond type 1: K=10.0 (spring constant), r0=1.0 (equilibrium length)
+bond_style      anharmonic
+bond_coeff      1 10.0 5.0 2.0 1.0   # bond type 1: K, KK, KKK (coefficients), r0=1.0 (equilibrium length)
 
 # --- 4. Settings ---
 # Set the timestep for the integration algorithm
