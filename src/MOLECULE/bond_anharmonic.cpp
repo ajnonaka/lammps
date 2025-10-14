@@ -51,7 +51,7 @@ void BondAnharmonic::compute(int eflag, int vflag)
 {
   int i1, i2, n, type;
   double delx, dely, delz, ebond, fbond;
-  double rsq, r, dr, rk;
+  double rsq, r, dr, rk, rkk, rkkk;
 
   ebond = 0.0;
   ev_init(eflag, vflag);
@@ -76,15 +76,19 @@ void BondAnharmonic::compute(int eflag, int vflag)
     r = sqrt(rsq);
     dr = r - r0[type];
     rk = k[type] * dr;
+    rkk = kk[type] * dr;
+    rkkk = kkk[type] * dr;
 
     // force & energy
 
-    if (r > 0.0)
-      fbond = -2.0 * rk / r;
-    else
-      fbond = 0.0;
+    if (r > 0.0) {
+        fbond = -2.0 * k[type] * dr / r - 3.0 * kk[type] * dr * dr / r - 4.0 * kkk[type] * dr * dr * dr / r;
+    } else {
+        fprintf(stdout,"warning, r <= 0");
+        fbond = 0.0;
+    }
 
-    if (eflag) ebond = rk * dr;
+    if (eflag) ebond = k[type] * dr * dr + kk[type] * dr * dr * dr + kkk[type] * dr * dr * dr * dr;
 
     // apply force to each of 2 atoms
 
