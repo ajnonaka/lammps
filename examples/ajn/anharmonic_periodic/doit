@@ -1,6 +1,6 @@
 mkdir images
 rm ./images/*.png
-lmp -in anharmonic.in
+../../../build/lmp -in anharmonic.in
 cd images
 ./rename_frames.sh
 animate *.png
