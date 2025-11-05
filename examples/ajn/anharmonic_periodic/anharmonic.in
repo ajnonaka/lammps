@@ -11,27 +11,23 @@ read_data       data.chain  # Read atom positions and bond topology from data.ch
 
 # --- 3. Force Field Definition ---
 # Define the potential for the bonds between atoms.
-#bond_style      anharmonic
-#bond_coeff      1 10.0 1000.0 100000.0 1.0   # bond type 1: K, KK, KKK (coefficients), r0=1.0 (equilibrium length)
-bond_style      harmonic
-bond_coeff      1 10.0 1.0   # bond type 1: K
+bond_style      anharmonic
+bond_coeff      1 0.5 0.3333333333 0.25 1.0   # bond type 1: K, KK, KKK (coefficients), r0=1.0 (equilibrium length)
 
 # --- 4. Settings ---
 # Set the timestep for the integration algorithm
 timestep        0.0002
 
 # Define how thermodynamic data (like temperature, energy) is printed to the screen
-thermo          100                                   # write frequency
-thermo_style    custom step temp pe ke etotal press   # which variables
 
 # Set up a file to dump atom coordinates for visualization
 # exports atomic coordinates every 100 timesteps to a file for later analysis or visualization
-dump            1 all custom 100 dump.chain.lammpstrj id type x y z
+dump            1 all custom 10000 dump.chain.lammpstrj id type x y z vx vy vz fx fy fz
 
 # creates PNG images of the system’s state every 200 timesteps,
 # with parameters defining the viewpoint and output dimensions
 # Create a subdirectory (e.g., "images") first or it will crash
-dump            2 all image 200 images/frame_*.png type type view 90 0 size 180 720 box yes 0.1
+#dump            2 all image 200 images/frame_*.png type type view 90 0 size 180 720 box yes 0.1
 
 # --- 5. Run Simulation ---
 
@@ -42,17 +38,26 @@ group           last_atom id 10
 # Give the first atom a positive velocity in z
 # Give the last atom a negative velocity in z
 # The total momentum is now zero, so the chain will not drift.
-velocity        first_atom set 0.0 0.0 0.0
-#velocity        last_atom set 0.0 0.0 1.0
-velocity        last_atom set 0.0 0.0 0.0
+#velocity        first_atom set 0.0 0.0 0.1
+#velocity        last_atom set 0.0 0.0 2.0
+velocity         all create 0.5 123456 dist gaussian mom yes rot yes units box
+velocity         all set 0.0 0.0 NULL sum no units box
+
+compute          Tcom all temp/com
+compute          Pcom all pressure Tcom
 
 # Run the simulation using the NVE (microcanonical) ensemble
 # This conserves energy, so the total energy should remain constant
 # also conserves the number of atoms and volume throughout the simulation.
 #fix             1 all nve
-fix             1 all nvt temp 0.5 0.5 $(100.0*dt)
+#fix              1 all nvt temp 0.5 0.5 $(100.0*dt)
+fix              1 all npt temp 0.5 0.5 $(100.0*dt) z 1.0 1.0 $(1000.0*dt)
+fix_modify       1 temp Tcom press Pcom
+
+thermo          10000                                   # write frequency
+thermo_style    custom step temp pe ke etotal press c_Tcom c_Pcom  # which variables
 
 # Run the simulation for 20,000 steps
-run             100000
+run             100000000
 
 print           "Simulation finished."
