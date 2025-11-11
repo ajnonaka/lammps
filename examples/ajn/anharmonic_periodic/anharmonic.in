@@ -61,10 +61,6 @@ compute          Pcom all pressure Tcom
 # Target Pz=1.0Pz​=1.0
 # Pressure damping = 1000.0*dt
 # The box size in z will adjust to maintain pressure; x and y are shrink-wrapped so not controlled.
-
-# Run the simulation using the NVE (microcanonical) ensemble
-# This conserves energy, so the total energy should remain constant
-# also conserves the number of atoms and volume throughout the simulation.
 fix              1 all npt temp 0.5 0.5 $(100.0*dt) z 1.0 1.0 $(1000.0*dt)
 
 # Modifies fix 1 (the NPT fix) to use Tcom and Pcom instead of the default temperature and pressure computes.
