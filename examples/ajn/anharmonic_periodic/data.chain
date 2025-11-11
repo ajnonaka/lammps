@@ -1,13 +1,14 @@
-# Data file for a 20-atom harmonic chain
+# Data file for a 10-atom harmonic chain
 
 10 atoms
 10 bonds
 1 atom types
 1 bond types
 
+# Defines the simulation box boundaries:
 -10.0 10.0 xlo xhi
 -10.0 10.0 ylo yhi
-0.0 10.0 zlo zhi
+  0.0 10.0 zlo zhi
 
 Masses
 
